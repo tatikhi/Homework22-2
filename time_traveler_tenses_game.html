@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Traveler: Tense Master Game</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --secondary: #06B6D4;
+            --accent: #F59E0B;
+            --bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --radius: 16px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --success: #10B981;
+            --error: #EF4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%);
+            color: white;
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+            box-shadow: 0 12px 28px -5px rgba(79, 70, 229, 0.35);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 6px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 1.15rem;
+            opacity: 0.95;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 32px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .step-badge {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.05rem;
+        }
+
+        .tense-tag {
+            background: #F1F5F9;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+        }
+
+        .score-badge {
+            background: #EEF2FF;
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .lives {
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        .progress-bar-container {
+            height: 10px;
+            background: #E2E8F0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+
+        .scenario-box {
+            background: #F8FAFC;
+            border-left: 5px solid var(--secondary);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #FFFFFF;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: #EEF2FF;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background-color: #ECFDF5 !important;
+            border-color: var(--success) !important;
+            color: #065F46 !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: #FEF2F2 !important;
+            border-color: var(--error) !important;
+            color: #991B1B !important;
+        }
+
+        .feedback-box {
+            display: none;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.98rem;
+            line-height: 1.6;
+        }
+
+        .feedback-box.correct-fb {
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            color: #065F46;
+        }
+
+        .feedback-box.incorrect-fb {
+            background: #FEF2F2;
+            border: 1px solid #FCA5A5;
+            color: #991B1B;
+        }
+
+        .next-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+            margin: 0 auto;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+        }
+
+        .next-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* END SCREEN */
+        .end-screen {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .end-screen h2 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .end-score {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin: 15px 0;
+        }
+
+        .end-msg {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            body { padding: 12px; }
+            .game-card { padding: 20px; }
+            .status-bar { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <header>
+        <span class="badge">A1-A2 Interactive Grammar Game</span>
+        <h1>Time Traveler: Tense Master ⏳</h1>
+        <p class="subtitle">Present Simple, Present Continuous, Past Simple & Future Simple</p>
+    </header>
+
+    <div class="game-card" id="gameCard">
+        
+        <!-- STATUS BAR -->
+        <div class="status-bar">
+            <div class="step-badge" id="stepCounter">Миссия: 1 / 20</div>
+            <div class="tense-tag" id="tenseTag">Present Simple</div>
+            <div class="lives" id="livesDisplay">❤️❤️❤️</div>
+            <div class="score-badge" id="scoreDisplay">Баллы: 0</div>
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+
+        <!-- SCENARIO & QUESTION -->
+        <div id="quizContent">
+            <div class="scenario-box" id="scenarioText">
+                <!-- Вставляется JS -->
+            </div>
+
+            <div class="question-text" id="questionText">
+                <!-- Вставляется JS -->
+            </div>
+
+            <div class="options-grid" id="optionsGrid">
+                <!-- Кнопки вставляются JS -->
+            </div>
+
+            <div class="feedback-box" id="feedbackBox">
+                <!-- Пояснение ошибки/успеха -->
+            </div>
+
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Следующая миссия ➔</button>
+        </div>
+
+        <!-- END SCREEN -->
+        <div class="end-screen" id="endScreen">
+            <h2 id="endTitle">Поздравляем! 🎉</h2>
+            <div class="end-score" id="endScore">0 / 200</div>
+            <p class="end-msg" id="endMsg"></p>
+            <button class="next-btn" style="display:inline-block;" onclick="restartGame()">Сыграть снова 🔄</button>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        {
+            tense: "Present Simple",
+            scenario: "📍 <b>Зона 1: Ежедневные привычки.</b> Мы наблюдаем за обычной жизнью жителей города.",
+            question: "Every morning, Alex ______ a fresh cup of coffee before work.",
+            options: ["drinks", "is drinking", "drank", "will drink"],
+            correct: 0,
+            rule: "Маркер <b>Every morning</b> указывают на регулярное, повторяющееся действие. Для <i>he (Alex)</i> в Present Simple добавляем окончание <b>-s</b> → <b>drinks</b>."
+        },
+        {
+            tense: "Present Continuous",
+            scenario: "📍 <b>Зона 2: Прямо сейчас.</b> Камера фиксирует происходящее в эту самую секунду.",
+            question: "Look! The fluffy cat ______ on your laptop right now.",
+            options: ["sleeps", "is sleeping", "slept", "will sleep"],
+            correct: 1,
+            rule: "Слова <b>Look!</b> и <b>right now</b> показывают действие, происходящее прямо сейчас. В Present Continuous используем <b>am/is/are + V-ing</b> → <b>is sleeping</b>."
+        },
+        {
+            tense: "Past Simple",
+            scenario: "📍 <b>Зона 3: Вчерашние события.</b> Мы перемещаемся во вчерашний день.",
+            question: "Yesterday, we ______ a brilliant science museum in the city center.",
+            options: ["visit", "are visiting", "visited", "will visit"],
+            correct: 2,
+            rule: "Маркер <b>Yesterday</b> указывает на завершенное действие в прошлом. Правильный глагол <i>visit</i> в Past Simple получает окончание <b>-ed</b> → <b>visited</b>."
+        },
+        {
+            tense: "Future Simple",
+            scenario: "📍 <b>Зона 4: Прогноз на завтра.</b> Взгляд в ближайшее будущее.",
+            question: "I think it ______ tomorrow, so don't forget your umbrella.",
+            options: ["rains", "is raining", "rained", "will rain"],
+            correct: 3,
+            rule: "Маркер <b>tomorrow</b> и выражение мнения <b>I think</b> означают спонтанный прогноз на будущее в Future Simple → <b>will rain</b>."
+        },
+        {
+            tense: "Present Simple",
+            scenario: "📍 <b>Зона 5: Расписание и правила.</b> Проверяем обычный график.",
+            question: "They usually ______ to school on Sundays.",
+            options: ["don't go", "aren't going", "didn't go", "won't go"],
+            correct: 0,
+            rule: "Маркер <b>usually</b> требует Present Simple. Отрицание для <i>they</i> строится с помощью вспомогательного глагола <b>don't + V1</b> → <b>don't go</b>."
+        },
+        {
+            tense: "Present Continuous",
+            scenario: "📍 <b>Зона 6: Звуки настоящего.</b> Что происходит за стеной?",
+            question: "Listen! Someone ______ a beautiful song on the piano upstairs.",
+            options: ["plays", "is playing", "played", "will play"],
+            correct: 1,
+            rule: "Призыв к вниманию <b>Listen!</b> означает, что действие происходит прямо сейчас. Для <i>someone (he/she)</i> берем <b>is + V-ing</b> → <b>is playing</b>."
+        },
+        {
+            tense: "Past Simple",
+            scenario: "📍 <b>Зона 7: Вопрос о прошлом.</b> Узнаем, где был собеседник.",
+            question: "Where ______ you ______ last weekend?",
+            options: ["do / go", "are / going", "did / go", "will / go"],
+            correct: 2,
+            rule: "Маркер <b>last weekend</b> требует Past Simple. Вопрос строится через вспомогательный глагол <b>did + смысловой глагол в начальной форме (go)</b> → <b>did / go</b>."
+        },
+        {
+            tense: "Future Simple",
+            scenario: "📍 <b>Зона 8: Спонтанное решение.</b> Помощь на месте.",
+            question: "Don't worry! I ______ you carry these heavy bags.",
+            options: ["help", "am helping", "helped", "will help"],
+            correct: 3,
+            rule: "Спонтанное решение помочь, принятое в момент речи, выражается через Future Simple → <b>will help</b>."
+        },
+        {
+            tense: "Present Simple",
+            scenario: "📍 <b>Зона 9: Вкусы и интересы.</b> Задаем вопрос о постоянных предпочтениях.",
+            question: "______ she ______ spicy Italian dishes?",
+            options: ["Does / like", "Is / liking", "Did / like", "Will / like"],
+            correct: 0,
+            rule: "Вопрос о постоянных вкусах (Present Simple) для подлежащего <i>she</i> задается с помощью <b>Does + V1</b> → <b>Does / like</b>."
+        },
+        {
+            tense: "Present Continuous",
+            scenario: "📍 <b>Зона 10: Временная ситуация.</b> Необычный выбор одежды сегодня.",
+            question: "Why ______ you ______ a heavy jacket today? It's warm outside!",
+            options: ["do / wear", "are / wearing", "did / wear", "will / wear"],
+            correct: 1,
+            rule: "Слово <b>today</b> в контексте текущего временного процесса требует Present Continuous → <b>are / wearing</b>."
+        },
+        {
+            tense: "Past Simple",
+            scenario: "📍 <b>Зона 11: Исторический факт.</b> Великие люди прошлого.",
+            question: "Mozart ______ more than 600 fantastic pieces of music.",
+            options: ["writes", "is writing", "wrote", "will write"],
+            correct: 2,
+            rule: "Моцарт жил в прошлом, его деятельность завершена. Неправильный глагол <i>write</i> во 2-й форме — <b>wrote</b>."
+        },
+        {
+            tense: "Future Simple",
+            scenario: "📍 <b>Зона 12: Предсказание будущего.</b> Мечты об освоении космоса.",
+            question: "Scientists believe people ______ on Mars in the year 2050.",
+            options: ["live", "are living", "lived", "will live"],
+            correct: 3,
+            rule: "Предсказание на далекое будущее (<i>in 2050</i>) после слова <i>believe</i> передается через Future Simple → <b>will live</b>."
+        },
+        {
+            tense: "Present Simple vs Continuous",
+            scenario: "📍 <b>Зона 13: Контраст привычки и момента.</b> Сравнение ситуаций.",
+            question: "She usually works from home, but today she ______ at the main office.",
+            options: ["works", "is working", "worked", "will work"],
+            correct: 1,
+            rule: "Первая часть — привычка (<i>usually works</i>), но временное исключение <b>today</b> требует Present Continuous → <b>is working</b>."
+        },
+        {
+            tense: "Past Simple",
+            scenario: "📍 <b>Зона 14: Отрицание в прошлом.</b> Поиски на вчерашней вечеринке.",
+            question: "I ______ you at the birthday party last night.",
+            options: ["don't see", "am not seeing", "didn't see", "won't see"],
+            correct: 2,
+            rule: "Маркер <b>last night</b>. Отрицание в Past Simple строится одинаково для всех лиц: <b>didn't + V1 (see)</b> → <b>didn't see</b>."
+        },
+        {
+            tense: "Future Simple",
+            scenario: "📍 <b>Зона 15: Вопрос о планах на завтра.</b> Уточнение присутствия.",
+            question: "______ you ______ at home tomorrow evening?",
+            options: ["Do / be", "Are / being", "Did / be", "Will / be"],
+            correct: 3,
+            rule: "Вопрос в Future Simple к глаголу <i>be</i> на завтра (<i>tomorrow</i>) строится по схеме <b>Will + подлежащее + be</b> → <b>Will / be</b>."
+        },
+        {
+            tense: "Present Simple",
+            scenario: "📍 <b>Зона 16: Научный факт.</b> Вечные законы природы.",
+            question: "The Earth ______ around the Sun.",
+            options: ["goes", "is going", "went", "will go"],
+            correct: 0,
+            rule: "Общеизвестные научные факты и законы природы всегда выражаются в Present Simple. Для <i>The Earth (it)</i> → <b>goes</b>."
+        },
+        {
+            tense: "Present Continuous",
+            scenario: "📍 <b>Зона 17: Просьба о тишине.</b> Сохраняем покой.",
+            question: "Shh! Be quiet, please. The baby ______ right now.",
+            options: ["sleeps", "is sleeping", "slept", "will sleep"],
+            correct: 1,
+            rule: "Контекст <b>Shh! Be quiet</b> говорит о том, что ребенок спит прямо сейчас. Форма Present Continuous → <b>is sleeping</b>."
+        },
+        {
+            tense: "Past Simple",
+            scenario: "📍 <b>Зона 18: Покупка в прошлом.</b> Двухдневная давность.",
+            question: "Two days ago, I ______ a stylish new pair of sneakers.",
+            options: ["buy", "am buying", "bought", "will buy"],
+            correct: 2,
+            rule: "Указатель <b>Two days ago</b> требует Past Simple. Неправильный глагол <i>buy</i> во 2-й форме — <b>bought</b>."
+        },
+        {
+            tense: "Future Simple",
+            scenario: "📍 <b>Зона 19: Решение от усталости.</b> Момент речи.",
+            question: "I'm very tired. I think I ______ to bed now.",
+            options: ["go", "am going", "went", "will go"],
+            correct: 3,
+            rule: "Решение, принятое спонтанно в момент речи из-за усталости (вместе с <i>I think</i>) → <b>will go</b>."
+        },
+        {
+            tense: "Mixed Challenge",
+            scenario: "📍 <b>Зона 20: Финальный вызов!</b> Связка прошлого и настоящего.",
+            question: "Yesterday I bought a fascinating book, and now I ______ it.",
+            options: ["read", "am reading", "readed", "will read"],
+            correct: 1,
+            rule: "Вчера купил (<i>Yesterday bought</i>), а прямо сейчас (<b>now</b>) читаю — для действия в момент речи используем Present Continuous → <b>am reading</b>."
+        }
+    ];
+
+    let currentStep = 0;
+    let score = 0;
+    let lives = 3;
+    let answered = false;
+
+    function loadQuestion() {
+        answered = false;
+        const q = questions[currentStep];
+
+        document.getElementById('stepCounter').innerText = `Миссия: ${currentStep + 1} / ${questions.length}`;
+        document.getElementById('tenseTag').innerText = q.tense;
+        document.getElementById('scoreDisplay').innerText = `Баллы: ${score}`;
+        document.getElementById('progressBar').style.width = `${((currentStep) / questions.length) * 100}%`;
+        
+        updateLives();
+
+        document.getElementById('scenarioText').innerHTML = q.scenario;
+        document.getElementById('questionText').innerText = q.question;
+
+        const optionsGrid = document.getElementById('optionsGrid');
+        optionsGrid.innerHTML = '';
+
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(idx);
+            optionsGrid.appendChild(btn);
+        });
+
+        const fb = document.getElementById('feedbackBox');
+        fb.style.display = 'none';
+        fb.className = 'feedback-box';
+
+        document.getElementById('nextBtn').style.display = 'none';
+    }
+
+    function updateLives() {
+        let hearts = '';
+        for (let i = 0; i < 3; i++) {
+            hearts += i < lives ? '❤️' : '🖤';
+        }
+        document.getElementById('livesDisplay').innerText = hearts;
+    }
+
+    function selectOption(index) {
+        if (answered) return;
+        answered = true;
+
+        const q = questions[currentStep];
+        const buttons = document.querySelectorAll('.option-btn');
+        const fb = document.getElementById('feedbackBox');
+
+        if (index === q.correct) {
+            buttons[index].classList.add('correct');
+            score += 10;
+            document.getElementById('scoreDisplay').innerText = `Баллы: ${score}`;
+            fb.className = 'feedback-box correct-fb';
+            fb.innerHTML = `<b>Отлично! 🎉</b><br>${q.rule}`;
+        } else {
+            buttons[index].classList.add('incorrect');
+            buttons[q.correct].classList.add('correct');
+            lives--;
+            updateLives();
+            fb.className = 'feedback-box incorrect-fb';
+            fb.innerHTML = `<b>Ошибка! ❌</b><br>${q.rule}`;
+        }
+
+        fb.style.display = 'block';
+
+        if (lives === 0) {
+            setTimeout(endGame, 1500);
+        } else {
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+    }
+
+    function nextQuestion() {
+        currentStep++;
+        if (currentStep < questions.length) {
+            loadQuestion();
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        document.getElementById('quizContent').style.display = 'none';
+        const endScreen = document.getElementById('endScreen');
+        endScreen.style.display = 'block';
+
+        document.getElementById('progressBar').style.width = '100%';
+        document.getElementById('endScore').innerText = `${score} / 200`;
+
+        if (lives === 0) {
+            document.getElementById('endTitle').innerText = 'Энергия машины времени иссякла! 💔';
+            document.getElementById('endMsg').innerText = 'Жизни закончились. Попробуй пройти путешествие во времени еще раз!';
+        } else if (score >= 180) {
+            document.getElementById('endTitle').innerText = 'Мастер Временных Эпох! ⏳🏆';
+            document.getElementById('endMsg').innerText = 'Невероятно! Ты идеально ориентируешься в Present Simple, Present Continuous, Past Simple и Future Simple!';
+        } else {
+            document.getElementById('endTitle').innerText = 'Хорошая работа! 👍';
+            document.getElementById('endMsg').innerText = 'Путешествие прошло успешно, но стоит еще немного повторить маркеры времени!';
+        }
+    }
+
+    function restartGame() {
+        currentStep = 0;
+        score = 0;
+        lives = 3;
+        document.getElementById('quizContent').style.display = 'block';
+        document.getElementById('endScreen').style.display = 'none';
+        loadQuestion();
+    }
+
+    window.onload = loadQuestion;
+</script>
+
+</body>
+</html>
